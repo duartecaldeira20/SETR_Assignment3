@@ -1,43 +1,74 @@
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
-#include "rtdb.h"
-#include "buttons.h"
-#include "led.h"
+#include "io.h"
 #include "uart.h"
+#include "rtdb.h"
+#include "emul.h"
 
-#define STACK_SIZE 1024
-#define PRIORITY 5
+#define TEMP_UPDATE_INTERVAL_MS 1000
+#define CONTROL_INTERVAL_MS     500
 
-// Definição das stacks e dados das threads
-K_THREAD_STACK_DEFINE(buttons_stack, STACK_SIZE);
-K_THREAD_STACK_DEFINE(led_stack, STACK_SIZE);
-K_THREAD_STACK_DEFINE(uart_stack, STACK_SIZE);
+void temperature_task(void)
+{
+    while (1) {
+        int temp = rtdb_get_current_temp();  // Temperatura simulada fixa a 25
+        rtdb_set_current_temp(temp);
+        k_msleep(TEMP_UPDATE_INTERVAL_MS);
+    }
+}
 
-struct k_thread buttons_thread_data;
-struct k_thread led_thread_data;
-struct k_thread uart_thread_data;
+void control_task(void)
+{
+    int last_temp = -1000;
+    int last_set = -1000;
+
+    while (1) {
+        if (!rtdb_get_system_state()) {
+            io_set_led(0, 0);  // System off
+            io_set_led(1, 0);
+            io_set_led(2, 0);
+            io_set_led(3, 0);
+            last_temp = -1000;
+            last_set = -1000;
+            k_msleep(CONTROL_INTERVAL_MS);
+            continue;
+        }
+
+        int t = rtdb_get_current_temp();
+        int s = rtdb_get_set_temp();
+
+        if (t != last_temp || s != last_set) {
+            printk("Current Temp: %d°C | Set Temp: %d°C\n", t, s);
+            last_temp = t;
+            last_set = s;
+        }
+
+        if (t < s - 2) {
+            io_set_led(1, 0);
+            io_blink_led(2);
+            io_set_led(3, 0);
+        } else if (t > s + 2) {
+            io_set_led(1, 0);
+            io_set_led(2, 0);
+            io_blink_led(3);
+        } else {
+            io_set_led(1, 1);
+            io_set_led(2, 0);
+            io_set_led(3, 0);
+        }
+
+        k_msleep(CONTROL_INTERVAL_MS);
+    }
+}
+
+K_THREAD_DEFINE(temp_id, 1024, temperature_task, NULL, NULL, NULL, 5, 0, 0);
+K_THREAD_DEFINE(ctrl_id, 1024, control_task, NULL, NULL, NULL, 5, 0, 0);
 
 void main(void)
 {
-    printk(">> Sistema iniciado (main)\n");
-
-    init_rtdb(); // Inicializa a base de dados e mutex
-
-    // Thread dos botões
-    k_thread_create(&buttons_thread_data, buttons_stack,
-        K_THREAD_STACK_SIZEOF(buttons_stack),
-        buttons_task, NULL, NULL, NULL,
-        PRIORITY, 0, K_NO_WAIT);
-
-    // Thread dos LEDs
-    k_thread_create(&led_thread_data, led_stack,
-        K_THREAD_STACK_SIZEOF(led_stack),
-        led_task, NULL, NULL, NULL,
-        PRIORITY, 0, K_NO_WAIT);
-
-    // Thread UART
-    k_thread_create(&uart_thread_data, uart_stack,
-        K_THREAD_STACK_SIZEOF(uart_stack),
-        uart_task, NULL, NULL, NULL,
-        PRIORITY, 0, K_NO_WAIT);
+    printk("Boot start\n");
+    io_init();
+    uart_init();
+    rtdb_init();
+    emul_init();
+    printk("System ready\n");
 }

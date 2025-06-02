@@ -1,80 +1,82 @@
 #include <zephyr/kernel.h>
-#include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/device.h>
+#include <zephyr/sys/printk.h>
 #include <string.h>
-#include <stdio.h>
-#include "cmdproc.h"
 #include "uart.h"
+#include "cmdproc.h"
 
-#define UART_DEV_NODE DT_NODELABEL(uart0)
+#define UART_NODE       DT_NODELABEL(uart0)
+#define RXBUF_SIZE      64
+#define RX_TIMEOUT_US   1000
 
-static const struct device *uart_dev = DEVICE_DT_GET(UART_DEV_NODE);
+const struct device *uart_dev = DEVICE_DT_GET(UART_NODE);
+static uint8_t rx_buf[RXBUF_SIZE];
+static uint8_t rx_data[RXBUF_SIZE];
+static volatile int rx_len = 0;
 
-static uint8_t rx_buf[UART_BUF_SIZE];
-static uint8_t rx_len = 0;
+static void uart_cb(const struct device *dev, struct uart_event *evt, void *user_data)
+{
+    switch (evt->type) {
 
-static uint8_t tx_buf[UART_TX_SIZE];
-static uint8_t tx_len = 0;
+    case UART_RX_RDY: {
+        for (int i = 0; i < evt->data.rx.len; i++) {
+            char c = rx_buf[evt->data.rx.offset + i];
 
-void uart_reset_tx_buffer(void) {
-    memset(tx_buf, 0, UART_TX_SIZE);
-    tx_len = 0;
-}
-
-void uart_get_tx_buffer(uint8_t *buf, int *len) {
-    *len = tx_len;
-    memcpy(buf, tx_buf, tx_len);
-}
-
-static void uart_send_reply(void) {
-    for (int i = 0; i < tx_len; i++) {
-        uart_poll_out(uart_dev, tx_buf[i]);
-    }
-    uart_reset_tx_buffer();
-}
-
-void uart_receive_byte(uint8_t byte) {
-    if (rx_len < UART_BUF_SIZE) {
-        rx_buf[rx_len++] = byte;
-        if (byte == EOF_SYM) {
-            // Copy received bytes into cmdproc buffer
-            resetRxBuffer();
-            for (int i = 0; i < rx_len; i++) {
-                rxChar(rx_buf[i]);
+            if (c == '#') {
+                rx_len = 0;  // início da frame
             }
 
-            // Process command
-            int res = cmdProcessor();
+            if (rx_len < RXBUF_SIZE - 1) {
+                rx_data[rx_len++] = c;
+            }
 
-            // Get response and send
-            getTxBuffer(tx_buf, (int *)&tx_len);
-            uart_send_reply();
-
-            // Reset for next command
-            rx_len = 0;
-        }
-    } else {
-        rx_len = 0; // overflow protection
-    }
-}
-
-void uart_process_rx(void) {
-    while (uart_irq_update(uart_dev) && uart_irq_is_pending(uart_dev)) {
-        if (uart_irq_rx_ready(uart_dev)) {
-            uint8_t byte;
-            int r = uart_fifo_read(uart_dev, &byte, 1);
-            if (r > 0) {
-                uart_receive_byte(byte);
+            if (c == '!') {
+                rx_data[rx_len] = '\0';  // termina string
+                printk("Received frame: %s\n", rx_data);
+                cmd_process(rx_data, rx_len);
+                rx_len = 0;
+                memset(rx_data, 0, sizeof(rx_data));
             }
         }
+        break;
+    }
+
+    case UART_RX_DISABLED:
+        uart_rx_enable(uart_dev, rx_buf, sizeof(rx_buf), RX_TIMEOUT_US);
+        break;
+
+    default:
+        break;
     }
 }
 
-void uart_init(void) {
+void uart_init(void)
+{
     if (!device_is_ready(uart_dev)) {
         printk("UART device not ready\n");
         return;
     }
 
-    uart_irq_rx_enable(uart_dev);
+    if (uart_callback_set(uart_dev, uart_cb, NULL) != 0) {
+        printk("Failed to set UART callback\n");
+        return;
+    }
+
+    if (uart_rx_enable(uart_dev, rx_buf, sizeof(rx_buf), RX_TIMEOUT_US) != 0) {
+        printk("Failed to enable UART RX\n");
+        return;
+    }
+
+    printk("UART initialized\n");
+}
+
+void uart_send_string(const char *msg)
+{
+    uart_tx(uart_dev, msg, strlen(msg), SYS_FOREVER_MS);
+}
+
+void uart_send_bytes(const uint8_t *buf, int len)
+{
+    uart_tx(uart_dev, buf, len, SYS_FOREVER_MS);
 }
