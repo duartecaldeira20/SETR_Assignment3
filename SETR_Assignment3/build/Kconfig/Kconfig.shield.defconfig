@@ -1,1 +1,2 @@
+osource "c:/setr/setr_assignment3/boards/shields/*/Kconfig.defconfig"
 osource "C:/ncs/v2.6.0/nrf/boards/shields/*/Kconfig.defconfig"

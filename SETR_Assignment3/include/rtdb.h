@@ -10,6 +10,7 @@ void rtdb_increment_current_temp(void);
 void rtdb_decrement_current_temp(void);
 
 int rtdb_get_set_temp(void);
+void rtdb_set_set_temp(int temp);
 void rtdb_increment_set_temp(void);
 void rtdb_decrement_set_temp(void);
 

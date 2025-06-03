@@ -121,6 +121,38 @@
     ],
     [
         [
+            "uint32_t sys_rand32_get",
+            "void"
+        ],
+        "random.h",
+        true
+    ],
+    [
+        [
+            "void sys_rand_get",
+            "void *dst, size_t len"
+        ],
+        "random.h",
+        true
+    ],
+    [
+        [
+            "int sys_csrand_get",
+            "void *dst, size_t len"
+        ],
+        "random.h",
+        true
+    ],
+    [
+        [
+            "int entropy_get_entropy",
+            "const struct device *dev,\n\t\t\t\t  uint8_t *buffer,\n\t\t\t\t  uint16_t length"
+        ],
+        "entropy.h",
+        true
+    ],
+    [
+        [
             "int gpio_pin_interrupt_configure",
             "const struct device *port,\n\t\t\t\t\t   gpio_pin_t pin,\n\t\t\t\t\t   gpio_flags_t flags"
         ],
@@ -197,6 +229,94 @@
             "const struct device *dev"
         ],
         "gpio.h",
+        true
+    ],
+    [
+        [
+            "int i2c_configure",
+            "const struct device *dev, uint32_t dev_config"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int i2c_get_config",
+            "const struct device *dev, uint32_t *dev_config"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int i2c_transfer",
+            "const struct device *dev,\n\t\t\t   struct i2c_msg *msgs, uint8_t num_msgs,\n\t\t\t   uint16_t addr"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int i2c_recover_bus",
+            "const struct device *dev"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int i2c_target_driver_register",
+            "const struct device *dev"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int i2c_target_driver_unregister",
+            "const struct device *dev"
+        ],
+        "i2c.h",
+        true
+    ],
+    [
+        [
+            "int pwm_set_cycles",
+            "const struct device *dev, uint32_t channel,\n\t\t\t     uint32_t period, uint32_t pulse,\n\t\t\t     pwm_flags_t flags"
+        ],
+        "pwm.h",
+        true
+    ],
+    [
+        [
+            "int pwm_get_cycles_per_sec",
+            "const struct device *dev, uint32_t channel,\n\t\t\t\t     uint64_t *cycles"
+        ],
+        "pwm.h",
+        true
+    ],
+    [
+        [
+            "int pwm_enable_capture",
+            "const struct device *dev, uint32_t channel"
+        ],
+        "pwm.h",
+        true
+    ],
+    [
+        [
+            "int pwm_disable_capture",
+            "const struct device *dev, uint32_t channel"
+        ],
+        "pwm.h",
+        true
+    ],
+    [
+        [
+            "int pwm_capture_cycles",
+            "const struct device *dev, uint32_t channel,\n\t\t\t\t pwm_flags_t flags, uint32_t *period,\n\t\t\t\t uint32_t *pulse, k_timeout_t timeout"
+        ],
+        "pwm.h",
         true
     ],
     [
@@ -1929,14 +2049,6 @@
     ],
     [
         [
-            "int entropy_get_entropy",
-            "const struct device *dev,\n\t\t\t\t  uint8_t *buffer,\n\t\t\t\t  uint16_t length"
-        ],
-        "entropy.h",
-        false
-    ],
-    [
-        [
             "int espi_config",
             "const struct device *dev, struct espi_cfg *cfg"
         ],
@@ -2369,54 +2481,6 @@
     ],
     [
         [
-            "int i2c_configure",
-            "const struct device *dev, uint32_t dev_config"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
-            "int i2c_get_config",
-            "const struct device *dev, uint32_t *dev_config"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
-            "int i2c_transfer",
-            "const struct device *dev,\n\t\t\t   struct i2c_msg *msgs, uint8_t num_msgs,\n\t\t\t   uint16_t addr"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
-            "int i2c_recover_bus",
-            "const struct device *dev"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
-            "int i2c_target_driver_register",
-            "const struct device *dev"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
-            "int i2c_target_driver_unregister",
-            "const struct device *dev"
-        ],
-        "i2c.h",
-        false
-    ],
-    [
-        [
             "int i2s_configure",
             "const struct device *dev, enum i2s_dir dir,\n\t\t\t    const struct i2s_config *cfg"
         ],
@@ -2749,46 +2813,6 @@
             "const struct device *dev, struct net_ptp_time *tm"
         ],
         "ptp_clock.h",
-        false
-    ],
-    [
-        [
-            "int pwm_set_cycles",
-            "const struct device *dev, uint32_t channel,\n\t\t\t     uint32_t period, uint32_t pulse,\n\t\t\t     pwm_flags_t flags"
-        ],
-        "pwm.h",
-        false
-    ],
-    [
-        [
-            "int pwm_get_cycles_per_sec",
-            "const struct device *dev, uint32_t channel,\n\t\t\t\t     uint64_t *cycles"
-        ],
-        "pwm.h",
-        false
-    ],
-    [
-        [
-            "int pwm_enable_capture",
-            "const struct device *dev, uint32_t channel"
-        ],
-        "pwm.h",
-        false
-    ],
-    [
-        [
-            "int pwm_disable_capture",
-            "const struct device *dev, uint32_t channel"
-        ],
-        "pwm.h",
-        false
-    ],
-    [
-        [
-            "int pwm_capture_cycles",
-            "const struct device *dev, uint32_t channel,\n\t\t\t\t pwm_flags_t flags, uint32_t *period,\n\t\t\t\t uint32_t *pulse, k_timeout_t timeout"
-        ],
-        "pwm.h",
         false
     ],
     [
@@ -4037,30 +4061,6 @@
             "const struct net_socket_service_desc *service,\n\t\t\t\t\t  struct zsock_pollfd *fds, int len, void *user_data"
         ],
         "socket_service.h",
-        false
-    ],
-    [
-        [
-            "uint32_t sys_rand32_get",
-            "void"
-        ],
-        "random.h",
-        false
-    ],
-    [
-        [
-            "void sys_rand_get",
-            "void *dst, size_t len"
-        ],
-        "random.h",
-        false
-    ],
-    [
-        [
-            "int sys_csrand_get",
-            "void *dst, size_t len"
-        ],
-        "random.h",
         false
     ],
     [

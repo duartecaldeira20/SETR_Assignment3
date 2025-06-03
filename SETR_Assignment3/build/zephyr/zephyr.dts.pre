@@ -1192,4 +1192,60 @@ zephyr_udc0: &usbd {
  status = "okay";
 };
 # 0 "<command-line>" 2
+# 1 "C:/SETR/SETR_Assignment3/boards/nrf52840dk_nrf52840.overlay" 1
+# 13 "C:/SETR/SETR_Assignment3/boards/nrf52840dk_nrf52840.overlay"
+/ {
+
+ extleds {
+  compatible = "gpio-leds";
+  extled4: extled_4 {
+   gpios = <&gpio0 3 (1 << 0)>;
+   label = "External LED 4";
+  };
+ };
+
+ pwmleds {
+  compatible = "pwm-leds";
+  pwm_led2: pwm_led_2 {
+
+   pwms = <&pwm1 1 (((20) * 1000UL) * 1000UL) (1 << 0)>;
+  };
+ };
+
+
+};
+
+&pwm1 {
+ status = "okay";
+ pinctrl-0 = <&pwm1_default>;
+ pinctrl-1 = <&pwm1_sleep>;
+ pinctrl-names = "default", "sleep";
+};
+
+&pinctrl {
+
+ pwm1_default: pwm1_default {
+  group1 {
+
+   psels = <((((((0) * 32U) + (28)) & 0x7FU) << 0U) | ((23U & 0xFFFFU) << 16U))>;
+   nordic,invert;
+  };
+ };
+
+ pwm1_sleep: pwm1_sleep {
+  group1 {
+
+   psels = <((((((0) * 32U) + (28)) & 0x7FU) << 0U) | ((23U & 0xFFFFU) << 16U))>;
+  };
+ };
+};
+# 71 "C:/SETR/SETR_Assignment3/boards/nrf52840dk_nrf52840.overlay"
+&i2c0 {
+    tc74sensor: tc74sensor@4D{
+        compatible = "i2c-device";
+        reg = <0x4D>;
+        label = "TC74SENSOR";
+    };
+};
+# 0 "<command-line>" 2
 # 1 "C:/ncs/v2.6.0/zephyr/misc/empty_file.c"

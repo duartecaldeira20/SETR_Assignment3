@@ -1,6 +1,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
 #include "io.h"
 #include "rtdb.h"
 
@@ -25,6 +26,9 @@ static const struct gpio_dt_spec buttons[] = {
     GPIO_DT_SPEC_GET(BTN3_NODE, gpios),
 };
 
+extern bool setpoint_defined;
+extern int temp_setpoint_buffer;
+
 static struct gpio_callback btn_cb_data[3];
 
 void io_set_led(int id, int state)
@@ -41,13 +45,60 @@ void io_blink_led(int id)
 
 void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-    if (cb == &btn_cb_data[0]) {
-        rtdb_toggle_system_state();
-        io_set_led(0, rtdb_get_system_state());
-    } else if (cb == &btn_cb_data[1]) {
-        rtdb_increment_current_temp();  // botão 2 (SW1)
-    } else if (cb == &btn_cb_data[2]) {
-        rtdb_decrement_current_temp();  // botão 4 (SW3)
+    if (cb == &btn_cb_data[0]) {  // Botão 1 (Confirmar ou ligar sistema)
+        gpio_pin_interrupt_configure_dt(&buttons[0], GPIO_INT_DISABLE);
+
+        if (!setpoint_defined) {
+            rtdb_set_set_temp(temp_setpoint_buffer);
+            setpoint_defined = true;
+            printk("\n[INFO] Desired temperature confirmed: %d ºC\n", temp_setpoint_buffer);
+            printk("[INFO] System is now ready!\n");
+            printk("[INFO] Press Button 1 again to turn ON/OFF the system.\n\n");
+        } else {
+            rtdb_toggle_system_state();
+            io_set_led(0, rtdb_get_system_state());
+        }
+
+        gpio_pin_interrupt_configure_dt(&buttons[0], GPIO_INT_EDGE_TO_ACTIVE);
+    }
+
+    else if (cb == &btn_cb_data[1]) {  // Botão 2
+        gpio_pin_interrupt_configure_dt(&buttons[1], GPIO_INT_DISABLE);
+
+        if (!setpoint_defined) {
+            int val = get_temp_buffer();
+            set_temp_buffer(val + 1);
+            printk("\rDesired Temperature: %2d ºC\033[K", get_temp_buffer());
+        } else {
+            rtdb_increment_set_temp();
+            int s = rtdb_get_set_temp();
+            int t = rtdb_get_current_temp();
+
+            // Intercalar info e reprint
+            printk("\n[INFO] Desired temperature set to: %d ºC\n", s);
+            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC\033[K", t, s);
+        }
+
+        gpio_pin_interrupt_configure_dt(&buttons[1], GPIO_INT_EDGE_TO_ACTIVE);
+    }   
+
+    else if (cb == &btn_cb_data[2]) {  // Botão 4
+        gpio_pin_interrupt_configure_dt(&buttons[2], GPIO_INT_DISABLE);
+
+        if (!setpoint_defined) {
+            int val = get_temp_buffer();
+            set_temp_buffer(val - 1);
+            printk("\rDesired Temperature: %2d ºC\033[K", get_temp_buffer());
+        } else {
+            rtdb_decrement_set_temp();
+            int s = rtdb_get_set_temp();
+            int t = rtdb_get_current_temp();
+
+            printk("\n[INFO] Desired temperature set to: %d ºC\n", s);
+            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC\033[K", t, s);
+        }
+
+        gpio_pin_interrupt_configure_dt(&buttons[2], GPIO_INT_EDGE_TO_ACTIVE);
     }
 }
 

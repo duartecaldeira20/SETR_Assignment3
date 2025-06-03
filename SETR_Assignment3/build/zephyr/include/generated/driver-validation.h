@@ -4,7 +4,13 @@
 		(K_SYSCALL_OBJ(ptr, K_OBJ_DRIVER_##driver_upper_case) || \
 		 K_SYSCALL_DRIVER_OP(ptr, driver_lower_case##_driver_api, op))
                 
+#define K_SYSCALL_DRIVER_ENTROPY(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, entropy, ENTROPY)
+
 #define K_SYSCALL_DRIVER_GPIO(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, gpio, GPIO)
+
+#define K_SYSCALL_DRIVER_I2C(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c, I2C)
+
+#define K_SYSCALL_DRIVER_PWM(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, pwm, PWM)
 
 #define K_SYSCALL_DRIVER_UART(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, uart, UART)
 
@@ -40,8 +46,6 @@
 
 #define K_SYSCALL_DRIVER_EMUL_SENSOR_BACKEND_API(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, emul_sensor_backend_api, EMUL_SENSOR_BACKEND_API)
 
-#define K_SYSCALL_DRIVER_ENTROPY(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, entropy, ENTROPY)
-
 #define K_SYSCALL_DRIVER_ESPI(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, espi, ESPI)
 
 #define K_SYSCALL_DRIVER_ESPI_SAF(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, espi_saf, ESPI_SAF)
@@ -55,8 +59,6 @@
 #define K_SYSCALL_DRIVER_GNSS(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, gnss, GNSS)
 
 #define K_SYSCALL_DRIVER_HWSPINLOCK(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, hwspinlock, HWSPINLOCK)
-
-#define K_SYSCALL_DRIVER_I2C(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2c, I2C)
 
 #define K_SYSCALL_DRIVER_I2S(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, i2s, I2S)
 
@@ -79,8 +81,6 @@
 #define K_SYSCALL_DRIVER_PS2(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, ps2, PS2)
 
 #define K_SYSCALL_DRIVER_PTP_CLOCK(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, ptp_clock, PTP_CLOCK)
-
-#define K_SYSCALL_DRIVER_PWM(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, pwm, PWM)
 
 #define K_SYSCALL_DRIVER_REGULATOR_PARENT(ptr, op) K_SYSCALL_DRIVER_GEN(ptr, op, regulator_parent, REGULATOR_PARENT)
 

@@ -85,3 +85,10 @@ void rtdb_toggle_system_state(void)
     system_on = !system_on;
     k_mutex_unlock(&rtdb_mutex);
 }
+
+void rtdb_set_set_temp(int temp)
+{
+    k_mutex_lock(&rtdb_mutex, K_FOREVER);
+    set_temp = temp;
+    k_mutex_unlock(&rtdb_mutex);
+}

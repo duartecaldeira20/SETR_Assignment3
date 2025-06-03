@@ -11,4 +11,5 @@ src/cmdproc.c
 src/rtdb.c 
 src/uart.c 
 src/io.c
-src/emul.c)
+src/sensor_i2c.c
+src/pwm.c)
