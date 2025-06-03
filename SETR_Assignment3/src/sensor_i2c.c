@@ -10,7 +10,7 @@ static const struct i2c_dt_spec dev_i2c = I2C_DT_SPEC_GET(I2C0_NID);
 int sensor_init_read(void)
 {
     int ret = 0;
-    uint8_t temp = 0;
+    int8_t temp = 0;
     uint8_t cmd = TC74_CMD_RTR;
 
     if (!device_is_ready(dev_i2c.bus)) {

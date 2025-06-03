@@ -63,11 +63,27 @@ void rtdb_decrement_set_temp(void)
     k_mutex_unlock(&rtdb_mutex);
 }
 
+void rtdb_set_set_temp(int temp)
+{
+    k_mutex_lock(&rtdb_mutex, K_FOREVER);
+    set_temp = temp;
+    k_mutex_unlock(&rtdb_mutex);
+}
+
 void rtdb_set_max_temp(int max)
 {
     k_mutex_lock(&rtdb_mutex, K_FOREVER);
     max_temp = max;
     k_mutex_unlock(&rtdb_mutex);
+}
+
+int rtdb_get_max_temp(void)
+{
+    int max;
+    k_mutex_lock(&rtdb_mutex, K_FOREVER);
+    max = max_temp;
+    k_mutex_unlock(&rtdb_mutex);
+    return max;
 }
 
 int rtdb_get_system_state(void)
@@ -83,12 +99,5 @@ void rtdb_toggle_system_state(void)
 {
     k_mutex_lock(&rtdb_mutex, K_FOREVER);
     system_on = !system_on;
-    k_mutex_unlock(&rtdb_mutex);
-}
-
-void rtdb_set_set_temp(int temp)
-{
-    k_mutex_lock(&rtdb_mutex, K_FOREVER);
-    set_temp = temp;
     k_mutex_unlock(&rtdb_mutex);
 }

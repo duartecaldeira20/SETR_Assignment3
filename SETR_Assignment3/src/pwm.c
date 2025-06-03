@@ -24,3 +24,4 @@ int pwm_ctrl_set_duty_cycle_percent(uint8_t percent)
     uint32_t pulse = (PWM_PERIOD_NS * percent) / 100;
     return pwm_set_dt(&pwm_led, PWM_PERIOD_NS, pulse);
 }
+

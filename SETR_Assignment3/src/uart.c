@@ -33,10 +33,11 @@ static void uart_cb(const struct device *dev, struct uart_event *evt, void *user
 
             if (c == '!') {
                 rx_data[rx_len] = '\0';  // termina string
-                printk("Received frame: %s\n", rx_data);
+                printk("\nCommand UART: %s\n", rx_data);
                 cmd_process(rx_data, rx_len);
                 rx_len = 0;
                 memset(rx_data, 0, sizeof(rx_data));
+                //printk("\nCommand UART: %s\n", rx_data);
             }
         }
         break;
