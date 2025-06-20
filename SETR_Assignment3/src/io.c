@@ -9,6 +9,7 @@
 #define BTN1_NODE DT_ALIAS(sw1)
 #define BTN2_NODE DT_ALIAS(sw2)
 #define BTN3_NODE DT_ALIAS(sw3)
+
 #define LED0_NODE DT_ALIAS(led0)
 #define LED1_NODE DT_ALIAS(led1)
 #define LED2_NODE DT_ALIAS(led2)
@@ -50,87 +51,128 @@ void io_blink_led(int id)
 
 void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
-    if (cb == &btn_cb_data[0]) {  // Botão 1
-        if (!setpoint_defined) {
+    if (cb == &btn_cb_data[0]) 
+    {  
+        if (!setpoint_defined) 
+        {
             setpoint_defined = true;
             printk("\n[INFO] Desired temperature set to: %d ºC\n", temp_setpoint_buffer);
             printk("[SETUP] Use ▲ (Button 2) and ▼ (Button 4) to define maximum temperature.\n");
-        } else if (!max_temp_defined) {
+        } 
+        else if (!max_temp_defined) 
+        {
             max_temp_defined = true;
             rtdb_set_set_temp(temp_setpoint_buffer);
             rtdb_set_max_temp(temp_max_buffer);
             printk("\n[INFO] Maximum temperature set to: %d ºC\n", temp_max_buffer);
             printk("[INFO] System is now ready!\n");
             printk("[INFO] Press Button 1 to toggle ON/OFF.\n\n");
-        } else {
+        } 
+        else 
+        {
             rtdb_toggle_system_state();
             io_set_led(0, rtdb_get_system_state());
         }
     }
 
-    else if (cb == &btn_cb_data[1]) {  // Botão 2 (incrementa)
-        if (!setpoint_defined) {
+    else if (cb == &btn_cb_data[1]) 
+    {  
+        if (!setpoint_defined) 
+        {
             temp_setpoint_buffer++;
-        } else if (!max_temp_defined) {
+        } 
+        else if (!max_temp_defined) 
+        {
             temp_max_buffer++;
-        } else {
+        } 
+        else 
+        {
             rtdb_increment_set_temp();
         }
 
-        if (!setpoint_defined) {
+        if (!setpoint_defined) 
+        {
             printk("\r[SETUP] Desired Temperature: %2d ºC   |   Maximum Temperature: ?? ºC\033[K", temp_setpoint_buffer);
-        } else if (!max_temp_defined) {
+        } 
+        else if (!max_temp_defined) 
+        {
             printk("\r[SETUP] Desired Temperature: %2d ºC   |   Maximum Temperature: %2d ºC\033[K", temp_setpoint_buffer, temp_max_buffer);
-        } else {
+        } 
+        else 
+        {
             int t = rtdb_get_current_temp();
             int s = rtdb_get_set_temp();
+            int m = rtdb_get_max_temp();
             printk("\n[INFO] Desired temperature set to: %d ºC\n", s);
-            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC\033[K", t, s);
+            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC    |    Maximum Temperature: %2d ºC\033[K", t, s, m);
         }
     }
 
-    else if (cb == &btn_cb_data[3]) {  // Botão 3 (decrementa)
-        if (!setpoint_defined) {
+    else if (cb == &btn_cb_data[3]) 
+    {  
+        if (!setpoint_defined) 
+        {
             temp_setpoint_buffer--;
-        } else if (!max_temp_defined) {
+        } 
+        else if (!max_temp_defined) 
+        {
             temp_max_buffer--;
-        } else {
+        } 
+        else 
+        {
             rtdb_decrement_set_temp();
         }
 
-        if (!setpoint_defined) {
+        if (!setpoint_defined) 
+        {
             printk("\r[SETUP] Desired Temperature: %2d ºC   |   Maximum Temperature: ?? ºC\033[K", temp_setpoint_buffer);
-        } else if (!max_temp_defined) {
+        } 
+        else if (!max_temp_defined) 
+        {
             printk("\r[SETUP] Desired Temperature: %2d ºC   |   Maximum Temperature: %2d ºC\033[K", temp_setpoint_buffer, temp_max_buffer);
-        } else {
+        } 
+        else 
+        {
             int t = rtdb_get_current_temp();
             int s = rtdb_get_set_temp();
+            int m = rtdb_get_max_temp();
             printk("\n[INFO] Desired temperature set to: %d ºC\n", s);
-            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC\033[K", t, s);
+            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC    |    Maximum Temperature: %2d ºC\033[K", t, s, m);
         }
     }
 
-    else if (cb == &btn_cb_data[2]) {  // Botão 4 (UART toggle)
+    else if (cb == &btn_cb_data[2]) 
+    {  
         if (!setpoint_defined || !max_temp_defined) return;
 
         uart_mode = !uart_mode;
-        if (uart_mode) {
+
+        if (uart_mode) 
+        {
             printk("\n\n[UART MODE] ─ UART Command Interface ─────────────\n");
             printk("Command: ");
-        } else {
+        } 
+        else 
+        {
+            int t = rtdb_get_current_temp();
+            int s = rtdb_get_set_temp();
+            int m = rtdb_get_max_temp();
             printk("\n[INFO] UART mode closed. Returning to system view...\n");
+            printk("Current Temperature: %2d ºC    |    Desired Temperature: %2d ºC    |    Maximum Temperature: %2d ºC\033[K", t, s, m);
         }
     }
 }
 
 void io_init(void)
 {
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) 
+    {
         if (!device_is_ready(leds[i].port)) return;
         gpio_pin_configure_dt(&leds[i], GPIO_OUTPUT_INACTIVE);
     }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) 
+    {
         if (!device_is_ready(buttons[i].port)) return;
         gpio_pin_configure_dt(&buttons[i], GPIO_INPUT);
         gpio_pin_interrupt_configure_dt(&buttons[i], GPIO_INT_EDGE_TO_ACTIVE);

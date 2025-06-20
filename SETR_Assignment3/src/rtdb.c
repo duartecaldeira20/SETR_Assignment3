@@ -1,10 +1,14 @@
 #include <zephyr/kernel.h>
 #include "rtdb.h"
 
-static int current_temp = 25;
+static int current_temp = 0;
 static int set_temp = 25;
-static int max_temp = 40;
+static int max_temp = 50;
 static bool system_on = false;
+
+static float Kp = 2.0f;
+static float Ki = 0.1f;
+static float Kd = 1.0f;
 
 K_MUTEX_DEFINE(rtdb_mutex);
 
@@ -26,19 +30,19 @@ int rtdb_get_current_temp(void)
     return temp;
 }
 
-void rtdb_increment_current_temp(void)
-{
-    k_mutex_lock(&rtdb_mutex, K_FOREVER);
-    if (current_temp < max_temp) current_temp++;
-    k_mutex_unlock(&rtdb_mutex);
-}
+//void rtdb_increment_current_temp(void)
+//{
+//    k_mutex_lock(&rtdb_mutex, K_FOREVER);
+//    if (current_temp < max_temp) current_temp++;
+//    k_mutex_unlock(&rtdb_mutex);
+//}
 
-void rtdb_decrement_current_temp(void)
-{
-    k_mutex_lock(&rtdb_mutex, K_FOREVER);
-    if (current_temp > 0) current_temp--;
-    k_mutex_unlock(&rtdb_mutex);
-}
+//void rtdb_decrement_current_temp(void)
+//{
+//    k_mutex_lock(&rtdb_mutex, K_FOREVER);
+//    if (current_temp > 0) current_temp--;
+//    k_mutex_unlock(&rtdb_mutex);
+//}
 
 int rtdb_get_set_temp(void)
 {
@@ -100,4 +104,16 @@ void rtdb_toggle_system_state(void)
     k_mutex_lock(&rtdb_mutex, K_FOREVER);
     system_on = !system_on;
     k_mutex_unlock(&rtdb_mutex);
+}
+
+void rtdb_set_pid_params(float p, float i, float d) {
+    Kp = p;
+    Ki = i;
+    Kd = d;
+}
+
+void rtdb_get_pid_params(float *p, float *i, float *d) {
+    if (p) *p = Kp;
+    if (i) *i = Ki;
+    if (d) *d = Kd;
 }
